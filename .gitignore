@@ -1,0 +1,28 @@
+# Caches Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Caches de test
+.cache/
+.coverage
+
+# Dossiers de test pytest
+htmlcov/
+*.pytest_cache/
+
+# Fichiers d’environnement
+.env
+.env.*
+
+# Environnements virtuels
+.venv/
+venv/
+poetry.lock
+
+# Fichiers systèmes
+.DS_Store
+Thumbs.db
+
+# Fichiers de logs
+*.log

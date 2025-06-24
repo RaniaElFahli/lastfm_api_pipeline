@@ -1,0 +1,64 @@
+main_genre,sub_genre
+Rock,Alternative Rock
+Rock,Hard Rock
+Rock,Indie Rock
+Rock,Progressive Rock
+Rock,Classic Rock
+Rock,Garage Rock
+Rock,Punk Rock
+Pop,Synthpop
+Pop,Electropop
+Pop,Indie Pop
+Pop,Dream Pop
+Hip-Hop,Rap
+Hip-Hop,Trap
+Hip-Hop,Conscious Hip-Hop
+Hip-Hop,East Coast Hip-Hop
+Hip-Hop,West Coast Hip-Hop
+Electronic,House
+Electronic,Techno
+Electronic,Trance
+Electronic,Ambient
+Electronic,Dubstep
+Electronic,Drum and Bass
+Jazz,Smooth Jazz
+Jazz,Bebop
+Jazz,Swing
+Jazz,Free Jazz
+Classical,Baroque
+Classical,Romantic
+Classical,Contemporary Classical
+Classical,Minimalism
+Folk,Indie Folk
+Folk,Traditional Folk
+Folk,Neofolk
+Reggae,Dub
+Reggae,Dancehall
+Reggae,Roots Reggae
+Metal,Heavy Metal
+Metal,Black Metal
+Metal,Death Metal
+Metal,Progressive Metal
+Metal,Doom Metal
+Blues,Delta Blues
+Blues,Electric Blues
+Blues,Chicago Blues
+Country,Alt-Country
+Country,Classic Country
+Country,Bluegrass
+Latin,Reggaeton
+Latin,Salsa
+Latin,Bachata
+Latin,Merengue
+World,Afrobeat
+World,K-Pop
+World,J-Pop
+World,Flamenco
+World,Traditional Celtic
+Experimental,Noise
+Experimental,Industrial
+Experimental,Glitch
+Experimental,Avant-Garde
+Soundtrack,Film Score
+Soundtrack,TV Score
+Soundtrack,Game Soundtrack
