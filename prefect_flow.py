@@ -9,8 +9,12 @@ from app.sessions import session
 
 @flow(log_prints=True, name="run_pipeline_lastfm")
 def run_pipeline():
+    extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4)
+    transformer = TrackTransformer(genre_csv_path="data/genres.csv")
+    loader = TrackLoader(db=session, extractor=extractor, transformer=transformer)
     pipeline = LastfmPipeline(
-        extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4),
-        transformer = TrackTransformer(genre_csv_path="data/genres.csv"), 
         loader = TrackLoader(db=session, extractor=extractor, transformer=transformer))
     pipeline.run()
+
+if __name__ == "__main__":
+    run_pipeline()
