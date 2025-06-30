@@ -4,10 +4,11 @@ from app.services.lastfmclient import LASTFMClient
 from app.services.trackloader import TrackLoader
 from app.services.tracktransformer import TrackTransformer
 from app.config import API_KEY, BASE_URL, USERNAME
+import app.config
 from app.sessions import session
 
 @flow(log_prints=True, name="run_pipeline_lastfm")
-def run_pipeline():
+def lastfm_etl():
     extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4)
     transformer = TrackTransformer(genre_csv_path="data/genres.csv")
     loader = TrackLoader(db=session, extractor=extractor, transformer=transformer)
@@ -18,4 +19,6 @@ def run_pipeline():
     pipeline.run()
 
 if __name__ == "__main__":
-    run_pipeline()
+    lastfm_etl.serve(
+        name="deploy-lastfm-etl"
+    )
