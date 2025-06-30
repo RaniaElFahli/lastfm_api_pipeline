@@ -7,7 +7,7 @@ from app.services.run_pipeline import LastfmPipeline
 from app.config import API_KEY, BASE_URL, USERNAME
 from app.sessions import session
 
-@flow(log_prints=True)
+@flow(log_prints=True, name="run_pipeline_lastfm")
 def run_pipeline():
     pipeline = LastfmPipeline(
         extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4),
