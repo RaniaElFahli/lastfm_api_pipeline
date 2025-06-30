@@ -3,7 +3,6 @@ from app.services.run_pipeline import LastfmPipeline
 from app.services.lastfmclient import LASTFMClient
 from app.services.trackloader import TrackLoader
 from app.services.tracktransformer import TrackTransformer
-from app.services.run_pipeline import LastfmPipeline
 from app.config import API_KEY, BASE_URL, USERNAME
 from app.sessions import session
 
@@ -13,7 +12,9 @@ def run_pipeline():
     transformer = TrackTransformer(genre_csv_path="data/genres.csv")
     loader = TrackLoader(db=session, extractor=extractor, transformer=transformer)
     pipeline = LastfmPipeline(
-        loader = TrackLoader(db=session, extractor=extractor, transformer=transformer))
+        extractor = extractor, 
+        transformer = transformer,
+        loader = loader)
     pipeline.run()
 
 if __name__ == "__main__":
