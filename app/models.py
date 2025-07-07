@@ -74,7 +74,7 @@ class RecentTracks(Base):
     )
 
 
-    listen_id: Mapped[int] = mapped_column(nullable=False)
+    listen_id: Mapped[int] = mapped_column(nullable=False, autoincrement=True)
     timestamp: Mapped[int] = mapped_column(BIGINT, nullable=False)
     date_time: Mapped[datetime] = mapped_column(TIMESTAMP)
     track_id: Mapped[int] = mapped_column(ForeignKey("tracks.track_id"))
