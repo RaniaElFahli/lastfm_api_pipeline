@@ -25,7 +25,7 @@ deployments:
   tags: []
   concurrency_limit: null
   description: null
-  entrypoint: prefect/prefect_flow.py:lastfm_etl
+  entrypoint: prefect_flow.py:lastfm_etl
   parameters: {}
   work_pool:
     name: local-pool-r
