@@ -1,3 +1,4 @@
+import logging 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -11,7 +12,6 @@ from app.services.tracktransformer import TrackTransformer
 from app.config import API_KEY, BASE_URL, USERNAME
 import app.config
 from app.sessions import session
-import logging 
 
 @flow(log_prints=True, name="run_pipeline_lastfm")
 def lastfm_etl():
