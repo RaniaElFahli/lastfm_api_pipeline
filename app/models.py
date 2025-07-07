@@ -68,13 +68,12 @@ class Tracks(Base):
 class RecentTracks(Base): 
     __tablename__ = "recent_tracks"
     __table_args__ = (
-         PrimaryKeyConstraint("listen_id", "timestamp", name="recent_tracks_pk"), 
          UniqueConstraint(
-        "album_id", "artist_id", "track_id", "listen_id", "timestamp", name="unique_recent_track_constraint") 
+        "track_id","timestamp", name="unique_recent_track_constraint"), 
+        {}
     )
 
-
-    listen_id: Mapped[int] = mapped_column(nullable=False, autoincrement=True)
+    listen_id: Mapped[int] = mapped_column(primary_key=True)
     timestamp: Mapped[int] = mapped_column(BIGINT, nullable=False)
     date_time: Mapped[datetime] = mapped_column(TIMESTAMP)
     track_id: Mapped[int] = mapped_column(ForeignKey("tracks.track_id"))
