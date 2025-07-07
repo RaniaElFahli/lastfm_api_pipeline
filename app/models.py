@@ -1,7 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, TIMESTAMP, TEXT, ForeignKey, BIGINT, PrimaryKeyConstraint
+from sqlalchemy import String, TIMESTAMP, TEXT, ForeignKey, BIGINT, PrimaryKeyConstraint, UniqueConstraint
 from datetime import datetime
 from typing import List
 
@@ -25,6 +25,11 @@ class Artists(Base):
     
 class Albums(Base): 
     __tablename__ = "albums"
+    __table_args__ = (UniqueConstraint(
+        "album_id", "artist_id", name="unique_album_artist_constraint"),
+        {}
+      
+    )
 
     album_id: Mapped[int] = mapped_column(primary_key=True)
     album_title: Mapped[str] = mapped_column(String(100))
@@ -41,6 +46,11 @@ class Albums(Base):
 
 class Tracks(Base): 
     __tablename__ = "tracks"
+    __table_args__ = (UniqueConstraint(
+        "album_id", "artist_id", "track_id", name="unique_album_artist_track_constraint"),
+        {}    
+    )
+
 
     track_id: Mapped[int] = mapped_column(primary_key=True)
     track_title: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -59,8 +69,10 @@ class RecentTracks(Base):
     __tablename__ = "recent_tracks"
     __table_args__ = (
          PrimaryKeyConstraint("listen_id", "timestamp", name="recent_tracks_pk"), 
-         {}
+         UniqueConstraint(
+        "album_id", "artist_id", "track_id", "listen_id", "timestamp", name="unique_recent_track_constraint") 
     )
+
 
     listen_id: Mapped[int] = mapped_column(primary_key=True)
     timestamp: Mapped[int] = mapped_column(BIGINT, nullable=False)
