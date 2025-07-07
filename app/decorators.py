@@ -1,5 +1,6 @@
 import logging
 from functools import wraps
+from sqlalchemy.exc import IntegrityError
 
 def commit_or_rollback(func):
     @wraps(func)
@@ -12,6 +13,9 @@ def commit_or_rollback(func):
             self.db.commit()
         except Exception as e: 
             logging.error(f'Failed data insertion in {func.__name__} : {e}')
+            self.db.rollback()
+        except IntegrityError as ie:
+            logging.error(f'Integrity error in {func.__name__} : {ie}')
             self.db.rollback()
         return result 
     return wrapper
