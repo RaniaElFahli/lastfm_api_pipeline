@@ -57,6 +57,10 @@ class Tracks(Base):
 
 class RecentTracks(Base): 
     __tablename__ = "recent_tracks"
+    __table_args__ = (
+         PrimaryKeyConstraint("listen_id", "timestamp", name="recent_tracks_pk"), 
+         {}
+    )
 
     listen_id: Mapped[int] = mapped_column(primary_key=True)
     timestamp: Mapped[int] = mapped_column(BIGINT, nullable=False)
