@@ -26,7 +26,7 @@ class TrackLoader:
             logger.info(f'{artist_name} : new artist inserted in Artists table')
             return new_artist.artist_id
         
-    def _get_or_create_album(self, album_title:str, artist_name:str)->int:
+    def _get_or_create_album(self, album_title:str, artist_name:str, artist_id:int)->int:
         album = self.db.query(Albums).filter_by(album_title=album_title).first()
         
         if album: 
@@ -35,7 +35,7 @@ class TrackLoader:
         else: 
             album_info = self.extractor.fetch_info_data("album", artist=artist_name, album=album_title)
             album_data = self.transformer.transform_info(album_info, entity="album")
-            artist_id = self._get_or_create_artist(artist_name=artist_name)
+            artist_id = artist_id
             new_album = Albums(
                 album_title=album_title, 
                 release_date= album_data['release_date'], 
@@ -50,13 +50,12 @@ class TrackLoader:
         track = self.db.query(Tracks).filter_by(track_title=track_name).first()
         
         if track:
-            return track.track_id
-        
+            return track.track_id, track.artist_id, track.album_id     
         else: 
             track_info = self.extractor.fetch_info_data("track", artist=artist_name, track=track_name)
             track_data = self.transformer.transform_info(track_info, entity="track")
             artist_id = self._get_or_create_artist(artist_name=artist_name)
-            album_id = self._get_or_create_album(album_title=album_title, artist_name=artist_name)
+            album_id = self._get_or_create_album(album_title=album_title, artist_name=artist_name, artist_id=artist_id)
             new_track = Tracks(
                 track_title = track_name, 
                 duration=track_data['duration'], 
@@ -66,14 +65,12 @@ class TrackLoader:
             self.db.add(new_track)
             self.db.flush()
             logger.info(f'{track_name} : new track inserted in Tracks table')
-            return new_track.track_id
+            return new_track.track_id, new_track.artist_id, new_track.album_id
 
-    @commit_or_rollback    
+    @commit_or_rollback
     def load_recent_tracks(self, tracks_data: list[dict]):
         for track in tracks_data:
-            track_id = self._get_or_create_track(track_name=track['track_name'], artist_name=track['artist'], album_title=track['album'])
-            artist_id = self._get_or_create_artist(artist_name=track['artist'])
-            album_id = self._get_or_create_album(album_title=track['album'], artist_name=track['artist'])
+            track_id, artist_id, album_id = self._get_or_create_track(track_name=track['track_name'], artist_name=track['artist'], album_title=track['album'])
             existing_track = self.db.query(RecentTracks).filter_by(timestamp=track['timestamp'], track_id=track_id).first()
             if existing_track:
                 logger.info(f'RecentTracks duplicate ignored for {existing_track}')
