@@ -12,7 +12,7 @@ class LASTFMClient:
 
     def  call_lastfm_client(self, url, params:dict) -> dict:
         try:
-            r = requests.get(url,timeout=1, params=params)
+            r = requests.get(url,timeout=10, params=params)
             r.raise_for_status()
             return r.json()
         
