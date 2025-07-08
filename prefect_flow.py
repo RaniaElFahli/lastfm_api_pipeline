@@ -61,6 +61,9 @@ def lastfm_etl():
     logger.info("Last.fm ETL pipeline completed successfully")
 
 if __name__ == "__main__":
-    lastfm_etl.serve(
+    lastfm_etl.from_source(
+        source="https://github.com/RaniaElFahli/lastfm_api_pipeline.git", 
+        entrypoint="prefect_flow.py:lastfm_etl"
+    ).serve(
         name="deploy-lastfm-etl"
     )
