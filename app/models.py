@@ -12,6 +12,10 @@ class Base(DeclarativeBase):
 
 class Artists(Base):
     __tablename__ = "artists"
+    __table_args__ = (
+        UniqueConstraint("artist_id", "artist_name", name = "unique_artist_constraint"), 
+        {}
+    )
 
     artist_id: Mapped[int] = mapped_column(primary_key=True)
     artist_name: Mapped[str] = mapped_column(String(30))
