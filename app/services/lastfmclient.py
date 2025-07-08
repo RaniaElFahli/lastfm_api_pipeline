@@ -1,14 +1,12 @@
 import requests 
-import logging 
-
-logger = logging.getLogger(name="lastfm_pipeline.lastfmclient")
 
 class LASTFMClient:
-    def __init__(self, api_key: str, base_url : str, username: str, fetch_limit:int):
+    def __init__(self, api_key: str, base_url : str, username: str, fetch_limit:int, logger):
         self.api_key = api_key
         self.base_url = base_url
         self.username = username 
         self.fetch_limit = fetch_limit
+        self.logger = logger
 
     def  call_lastfm_client(self, url, params:dict) -> dict:
         try:
@@ -44,8 +42,8 @@ class LASTFMClient:
         "limit": self.fetch_limit
     }
         data = self.call_lastfm_client(url=self.base_url, params=params)
-        logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
-        logger.info(f'Fetched {self.fetch_limit} recent tracks for user : {self.username}')
+        self.logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
+        self.logger.info(f'Fetched {self.fetch_limit} recent tracks for user : {self.username}')
         return data.get("recenttracks", {}).get("track", [])
     
     def fetch_info_data(self, type:str, **kwargs) -> dict:
@@ -71,7 +69,7 @@ class LASTFMClient:
         **kwargs
     }
         data = self.call_lastfm_client(url=self.base_url, params=params)
-        logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
+        self.logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
         return data.get(type, {}) 
     
     def fetch_top_tags(self, type:str, **kwargs):
@@ -97,7 +95,7 @@ class LASTFMClient:
         **kwargs
         }
         data = self.call_lastfm_client(url=self.base_url, params=params)
-        logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
+        self.logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
         tags_data = data.get("toptags", {}).get("tag", [])
         if isinstance(tags_data, dict):
             tags_data = [tags_data]
