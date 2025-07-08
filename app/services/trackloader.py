@@ -116,7 +116,8 @@ class TrackLoader:
 
     @commit_or_rollback
     def load_album_genres(self, album_title:str, artist_name:str):
-        album_id = self._get_or_create_album(album_title=album_title, artist_name=artist_name)
+        artist_id = self._get_or_create_artist(artist_name=artist_name)
+        album_id = self._get_or_create_album(album_title=album_title, artist_name=artist_name, artist_id=artist_id)
         extracted_album_tags = self.extractor.fetch_top_tags(type="album", artist=artist_name, album=album_title)
         genre_names = self.transformer.build_music_genre_list(extracted_tags=extracted_album_tags)
         for genre_name in genre_names:
