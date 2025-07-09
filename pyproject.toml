@@ -19,6 +19,7 @@ dependencies = [
     "dotenv (>=0.9.9,<0.10.0)",
     "pytest-dependency (>=0.6.0,<0.7.0)",
     "prefect (>=3.4.6,<4.0.0)",
+    "uvicorn (>=0.35.0,<0.36.0)",
 ]
 
 [tool.poetry]
