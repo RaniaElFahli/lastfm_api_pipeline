@@ -1,18 +1,8 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app import analysis
-from app.services.lastfmclient import LASTFMClient
-from app.services.trackloader import TrackLoader
-from app.services.tracktransformer import TrackTransformer
-from app.services.run_pipeline import LastfmPipeline
-from app.config import USERNAME, API_KEY, BASE_URL, DATABASE_URL
-
-if __name__== "__main__":
-    extractor = LASTFMClient(username=USERNAME, base_url=BASE_URL, api_key=API_KEY)
-    transformer = TrackTransformer(genre_csv_path="data/genres.csv")
-    loader = TrackLoader(database_url=DATABASE_URL)
-
-    pipeline = LastfmPipeline(extractor, transformer, loader)
+from app.sessions import session
+from app.models import Artists, Tracks, AlbumGenre, Albums, MusicGenre, ArtistGenre, RecentTracks
+from sqlalchemy import func, desc 
+from app.schemas import TopArtists
 
 app = FastAPI(
     title="My musical dashboard", 
@@ -20,19 +10,22 @@ app = FastAPI(
     version="1.0"
 )
 
+@app.get("/")
+async def read_root():
+    return {"message": "Bienvenue sur l'API Music Dashboard"}
+
 @app.get("/top-artists")
+async def get_top_artists(limit: int = 5):
+    top_artists_query = session.query(
+        Artists.artist_name,
+        func.count(RecentTracks.artist_id).label('artist_listen_count')
+    ).join(Artists, Artists.artist_id == RecentTracks.artist_id
+    ).group_by(Artists.artist_name
+    ).order_by(desc('artist_listen_count')).limit(limit)
 
-def top_artists(limit : int = 10):
+    results = top_artists_query.all()
+    return [
+        TopArtists(artist_name=artist_name, listen_count=artist_listen_count)
+        for artist_name, artist_listen_count in results
+    ]
 
-    df = analysis.get_top_artists(limit)
-    return df.to_dict(orient="records")
-
-@app.get("/top-tracks")
-def top_tracks(limit : int = 10): 
-    df = analysis.get_top_tracks(limit)
-    return df.to_dict(orient = "records")
-
-@app.get("/listens-per-day")
-def listens_per_day():
-    df = analysis.get_listens_per_day()
-    return df.to_dict(orient = "records")
