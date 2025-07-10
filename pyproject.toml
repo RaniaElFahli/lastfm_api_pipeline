@@ -21,6 +21,7 @@ dependencies = [
     "prefect (>=3.4.6,<4.0.0)",
     "uvicorn (>=0.35.0,<0.36.0)",
     "pydantic (>=2.11.7,<3.0.0)",
+    "streamlit (>=1.46.1,<2.0.0)",
 ]
 
 [tool.poetry]
