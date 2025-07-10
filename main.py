@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.sessions import session
 from app.models import Artists, Tracks, Albums, ArtistGenre, RecentTracks, MusicGenre
 from sqlalchemy import func, desc
-from app.schemas import TopArtists, TopTracks, TopAlbums, TopGenres, Dailylisteningduration
+from app.schemas import TopArtists, TopTracks, TopAlbums, TopGenres, Dailylisteningduration, GenreDiversity
 import math
 
 app = FastAPI(
@@ -15,7 +15,10 @@ app = FastAPI(
 async def read_root():
     return {"message": "Bienvenue sur l'API Music Dashboard"}
 
-@app.get("/top-artists")
+@app.get("/top-artists", 
+    response_model=TopArtists,
+    summary="Top artists",
+    description="Top recently streamed artists with desired limit")
 async def get_top_artists(limit: int = 5):
     top_artists_query = session.query(
         Artists.artist_name,
@@ -31,7 +34,10 @@ async def get_top_artists(limit: int = 5):
     ]
 
 
-@app.get("/top-tracks")
+@app.get("/top-tracks", 
+    response_model=TopTracks,
+    summary="Top tracks",
+    description="Top recently streamed tracks with desired limit")
 async def get_top_tracks(limit: int=5):
 
     top_tracks_query = session.query(
@@ -50,7 +56,10 @@ async def get_top_tracks(limit: int=5):
         for track_name, artist_name, tracks_listen_count in results
     ]
 
-@app.get("/top-albums")
+@app.get("/top-albums", 
+    response_model=TopAlbums,
+    summary="Top streamed albums",
+    description="List of top streamed albums with desired limit")
 async def get_top_albums(limit: int=5):
     top_albums_query = session.query(
         Albums.album_title, 
@@ -68,7 +77,10 @@ async def get_top_albums(limit: int=5):
         for album_name, artist_name, albums_listen_count in results
     ]
 
-@app.get("/top-genres")
+@app.get("/top-genres", 
+    response_model=TopGenres,
+    summary="Top genres streamed",
+    description="Top musical genres based on artists recently streamed with desired limit")
 async def get_top_genres(limit: int=5):
     top_genres_query = session.query(
         MusicGenre.genre_name,
@@ -85,7 +97,10 @@ async def get_top_genres(limit: int=5):
         for genre_name, artist_listen_count in results
     ]
 
-@app.get("/daily-listens")
+@app.get("/daily-listens", 
+        response_model=Dailylisteningduration,
+    summary="Daily listening duration",
+    description="Daily listening duration in minutes based on recent tracks")
 async def get_daily_duration():
     daily_duration_query = session.query(
         func.date(RecentTracks.date_time).label("date"), 
@@ -100,7 +115,9 @@ async def get_daily_duration():
         date_time=date_time, duration_count=duration_count)
         for date_time, duration_count in results
     ]
-@app.get("/genre-diversity")
+@app.get("/genre-diversity", response_model=GenreDiversity,
+    summary="Musical genres diversity",
+    description="Entropy indicator of musical genres diversity bases on artists recently streamed")
 async def get_genre_diversity():
     genres_query = session.query(
         MusicGenre.genre_name,
@@ -119,11 +136,12 @@ async def get_genre_diversity():
 
     max_entropy = math.log(len(results), 2) if len(results) > 0 else 0
     normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0
-    return {
-        "genre_diversity": normalized_entropy,
-        "total_listens": total_listens,
-        "genres": [
-            {"genre_name": genre_name, "artist_listen_count": artist_listen_count}
-            for genre_name, artist_listen_count in results
-        ]
-    }
+
+    return [
+        GenreDiversity(
+            genre_diversity=normalized_entropy,
+            total_listens=total_listens,
+            genres=[{"genre_name": genre_name, "artist_listen_count": artist_listen_count} for genre_name, artist_listen_count in results]
+        )
+    ]
+        
