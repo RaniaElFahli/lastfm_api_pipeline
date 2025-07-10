@@ -3,6 +3,7 @@ from app.sessions import session
 from app.models import Artists, Tracks, Albums, ArtistGenre, RecentTracks, MusicGenre
 from sqlalchemy import func, desc
 from app.schemas import TopArtists, TopTracks, TopAlbums, TopGenres, Dailylisteningduration
+import math
 
 app = FastAPI(
     title="My musical dashboard", 
@@ -99,3 +100,30 @@ async def get_daily_duration():
         date_time=date_time, duration_count=duration_count)
         for date_time, duration_count in results
     ]
+@app.get("/genre-diversity")
+async def get_genre_diversity():
+    genres_query = session.query(
+        MusicGenre.genre_name,
+        func.count(RecentTracks.artist_id).label("artist_listen_count")
+    ).join(ArtistGenre, ArtistGenre.artist_id == RecentTracks.artist_id
+    ).join(MusicGenre, MusicGenre.genre_id == ArtistGenre.genre_id
+    ).group_by(MusicGenre.genre_name) 
+
+    results = genres_query.all()
+    total_listens = sum(artist_listen_count for genre_name, artist_listen_count in results)
+    entropy = 0.0
+
+    for genre_name, artist_listen_count in results:
+        probability = artist_listen_count / total_listens
+        entropy -= probability * math.log(probability, 2)  # log base 2
+
+    max_entropy = math.log(len(results), 2) if len(results) > 0 else 0
+    normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0
+    return {
+        "genre_diversity": normalized_entropy,
+        "total_listens": total_listens,
+        "genres": [
+            {"genre_name": genre_name, "artist_listen_count": artist_listen_count}
+            for genre_name, artist_listen_count in results
+        ]
+    }
