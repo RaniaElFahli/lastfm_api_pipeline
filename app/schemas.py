@@ -21,4 +21,4 @@ class TopGenres(BaseModel):
 
 class Dailylisteningduration(BaseModel):
     date_time:datetime
-    duration_count:int
+    duration_count:float
