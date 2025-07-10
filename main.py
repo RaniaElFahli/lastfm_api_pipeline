@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.sessions import session
 from app.models import Artists, Tracks, Albums, ArtistGenre, RecentTracks, MusicGenre
-from sqlalchemy import func, desc 
+from sqlalchemy import func, desc
 from app.schemas import TopArtists, TopTracks, TopAlbums, TopGenres, Dailylisteningduration
 
 app = FastAPI(
@@ -88,7 +88,7 @@ async def get_top_genres(limit: int=5):
 async def get_daily_duration():
     daily_duration_query = session.query(
         func.date(RecentTracks.date_time).label("date"), 
-        func.sum(Tracks.duration).label("duration_count")
+        func.sum(Tracks.duration / 60000).label("duration_count_minutes")
     ).join(Tracks, Tracks.track_id == RecentTracks.track_id
     ).group_by("date"
     ).order_by("date")
