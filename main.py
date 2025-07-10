@@ -31,7 +31,7 @@ async def get_top_artists(limit: int = 5):
 
 
 @app.get("/top-tracks")
-async def get_top_tracks(limit: int=5)
+async def get_top_tracks(limit: int=5):
 
     top_tracks_query = session.query(
         Tracks.track_title, 
@@ -39,7 +39,6 @@ async def get_top_tracks(limit: int=5)
         func.count(RecentTracks.track_id).label("tracks_listen_count")
     ).join(Tracks, Tracks.track_id == RecentTracks.track_id
     ).join(Artists, Artists.artist_id == Tracks.artist_id
-    ).join(RecentTracks, RecentTracks.track_id == Tracks.track_id
     ).group_by(Tracks.track_title, Artists.artist_name
     ).order_by(desc("tracks_listen_count")).limit(limit)
 
