@@ -20,7 +20,7 @@ class LASTFMClient:
     
     def check_call_lastfm_client_code(self, url, params): 
         try:
-            r = requests.get(url, params=params, timeout=1)
+            r = requests.get(url, params=params, timeout=10)
             r.raise_for_status()
             return r.status_code 
         except requests.exceptions.Timeout as errt:
