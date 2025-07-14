@@ -72,7 +72,7 @@ def lastfm_etl():
     email_send_message(
          email_server_credentials=EmailServerCredentials.load("email-credentials"),
         subject=subject,
-        message=message
+        msg=message
     )
 
 if __name__ == "__main__":
