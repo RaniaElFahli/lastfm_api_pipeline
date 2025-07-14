@@ -70,7 +70,7 @@ def lastfm_etl():
     subject = f"Flow Run Completed: {flow_run.name} - {final_state.type}"
     message = f"Flow run {flow_run.name} has completed with state: {final_state.type}"
     email_send_message(
-        EmailServerCredentials.load("email-credentials"),
+         email_server_credentials=EmailServerCredentials.load("email-credentials"),
         subject=subject,
         message=message
     )
