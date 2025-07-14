@@ -32,7 +32,7 @@ deployments:
     work_queue_name: null
     job_variables: {}
   schedules:
-  - cron: '0 18 * * * '
+  - cron: '30 18 * * * '
     timezone: Europe/Paris
     day_or: true
     active: true
