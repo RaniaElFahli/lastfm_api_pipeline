@@ -72,7 +72,8 @@ def lastfm_etl():
     email_send_message(
          email_server_credentials=EmailServerCredentials.load("email-credentials"),
         subject=subject,
-        msg=message
+        msg=message, 
+        email_to="rania.epro@gmail.com"
     )
 
 if __name__ == "__main__":
