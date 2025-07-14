@@ -14,24 +14,6 @@ from prefect_email import email_send_message, EmailServerCredentials
 from prefect.context import get_run_context
 from prefect.states import State
 
-def notify_flow_run_state(state: State):
-    credentials = EmailServerCredentials.load("email-credentials")
-    context = get_run_context()
-    flow_run_name = context.flow_run.name
-    run_id = context.flow_run.id
-    if isinstance(state, State.Completed):
-        subject = f"Flow {flow_run_name} completed successfully"
-        message = f"Flow run {flow_run_name} with ID {run_id} has completed successfully."
-    elif isinstance(state, State.Failed):
-        subject = f"Flow {flow_run_name} failed"
-        message = f"Flow run {flow_run_name} with ID {run_id} has failed. Please check the logs for more details."
-    
-    email_send_message(
-        subject=subject,
-        message=message,
-        email_server_credentials=credentials
-    )
-
 
 def make_loader(logger):
     extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4, logger=logger)
@@ -72,7 +54,7 @@ def load_artist_album_genres(tracks_data):
           loader.load_artist_genres(artist_name=artist)
           loader.load_album_genres(artist_name=artist, album_title=album)
 
-@flow(log_prints=True, name="run_pipeline_lastfm", on_exit=notify_flow_run_state)
+@flow(log_prints=True, name="run_pipeline_lastfm")
 def lastfm_etl():
     logger = get_run_logger()
     logger.info("Starting Last.fm ETL pipeline")
@@ -81,6 +63,17 @@ def lastfm_etl():
     load_tracks(tracks_data)
     load_artist_album_genres(tracks_data)
     logger.info("Last.fm ETL pipeline completed successfully")
+    context = get_run_context()
+    flow_run = context.flow_run
+    final_state: State = flow_run.state
+
+    subject = f"Flow Run Completed: {flow_run.name} - {final_state.type}"
+    message = f"Flow run {flow_run.name} has completed with state: {final_state.type}"
+    email_send_message(
+        EmailServerCredentials.load("email-credentials"),
+        subject=subject,
+        message=message
+    )
 
 if __name__ == "__main__":
     lastfm_etl.from_source(
