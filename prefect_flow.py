@@ -75,11 +75,3 @@ def lastfm_etl():
         msg=message, 
         email_to="rania.epro@gmail.com"
     )
-
-if __name__ == "__main__":
-    lastfm_etl.from_source(
-        source="https://github.com/RaniaElFahli/lastfm_api_pipeline.git", 
-        entrypoint="prefect_flow.py:lastfm_etl"
-    ).serve(
-        name="deploy-lastfm-etl"
-    )
