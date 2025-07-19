@@ -54,6 +54,24 @@ def load_artist_album_genres(tracks_data):
           loader.load_artist_genres(artist_name=artist)
           loader.load_album_genres(artist_name=artist, album_title=album)
 
+def notify_by_email():
+    try: 
+        context = get_run_context()
+        flow_run = context.flow_run
+        final_state: State = flow_run.state
+
+        subject = f"Flow Run executed: {flow_run.name} - {final_state.type}"
+        message = f"Flow run {flow_run.name} was executed with state: {final_state.type}"
+        email_send_message(
+            email_server_credentials=EmailServerCredentials.load("email-credentials"),
+            subject=subject,
+            msg=message, 
+            email_to="rania.epro@gmail.com"
+        )
+    except Exception as e:
+        logger = get_run_logger()
+        logger.error(f'Failed to send email notification : {e}')
+
 @flow(log_prints=True, name="run_pipeline_lastfm")
 def lastfm_etl():
     logger = get_run_logger()
@@ -63,15 +81,4 @@ def lastfm_etl():
     load_tracks(tracks_data)
     load_artist_album_genres(tracks_data)
     logger.info("Last.fm ETL pipeline completed successfully")
-    context = get_run_context()
-    flow_run = context.flow_run
-    final_state: State = flow_run.state
-
-    subject = f"Flow Run Completed: {flow_run.name} - {final_state.type}"
-    message = f"Flow run {flow_run.name} has completed with state: {final_state.type}"
-    email_send_message(
-         email_server_credentials=EmailServerCredentials.load("email-credentials"),
-        subject=subject,
-        msg=message, 
-        email_to="rania.epro@gmail.com"
-    )
+    notify_by_email()
