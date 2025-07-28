@@ -37,6 +37,7 @@ deployments:
     work_queue_name: null
     job_variables: 
       image: lastfm-image:latest
+      image_pull_policy: Never
   schedules:
   - cron: '30 18 * * * '
     timezone: Europe/Paris
