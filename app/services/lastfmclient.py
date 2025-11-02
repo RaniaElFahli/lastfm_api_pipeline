@@ -1,11 +1,13 @@
 import requests 
+import logging
+from prefect_deployment.prefect_flow import make_loader
+
 
 class LASTFMClient:
-    def __init__(self, api_key: str, base_url : str, username: str, fetch_limit:int, logger):
+    def __init__(self, api_key: str, base_url : str, username: str, logger):
         self.api_key = api_key
         self.base_url = base_url
         self.username = username 
-        self.fetch_limit = fetch_limit
         self.logger = logger
 
     def  call_lastfm_client(self, url, params:dict) -> dict:
@@ -34,18 +36,42 @@ class LASTFMClient:
             raise
 
     def fetch_recent_tracks(self) -> list[dict]:
-        params = {
-        "method" : "user.getRecentTracks", 
-        "user" : self.username, 
-        "api_key" : self.api_key, 
-        "format" : "json",
-        "limit": self.fetch_limit
-    }
-        data = self.call_lastfm_client(url=self.base_url, params=params)
-        self.logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
-        self.logger.info(f'Fetched {self.fetch_limit} recent tracks for user : {self.username}')
-        return data.get("recenttracks", {}).get("track", [])
-    
+        
+        all_tracks = []
+        page = 1
+        per_page = 200
+        logger = self.logger
+        loader = make_loader(logger)
+        last_timestamp = loader._get_last_timestamp()
+        
+        while not stop: 
+            params = {
+            "method" : "user.getRecentTracks", 
+            "user" : self.username, 
+            "api_key" : self.api_key, 
+            "format" : "json",
+            "limit": per_page
+        }
+            call_tracks = self.call_lastfm_client(url=self.base_url, params=params)
+            tracks = call_tracks.get("recenttracks", {}).get("track", [])
+            self.logger.info(f'"Returned status code {self.check_call_lastfm_client_code(url=self.base_url, params=params)}"')
+            
+            if not tracks:
+                break
+
+        for track in tracks:
+            ts = track.get("date", {}).get("uts")
+            ts = int(ts) 
+            if last_timestamp and ts and ts <= last_timestamp:
+                stop = True
+                break
+            all_tracks.append(track)
+
+        self.logger.info(f"Fetched page {page} = total {len(all_tracks)} tracks")
+
+        page += 1
+        return all_tracks
+
     def fetch_info_data(self, type:str, **kwargs) -> dict:
     
         if type not in ['track', 'album']:
