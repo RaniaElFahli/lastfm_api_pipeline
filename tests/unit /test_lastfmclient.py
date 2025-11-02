@@ -4,7 +4,7 @@ def test_fetch_recent_tracks_output_type(mock_requests_get, lastfm_client):
     
     mock_requests_get
 
-    recent_tracks = lastfm_client.fetch_recent_tracks(limit=2)
+    recent_tracks = lastfm_client.fetch_recent_tracks()
     assert isinstance(recent_tracks, list)
     assert all(isinstance(track, dict) for track in recent_tracks)
  

@@ -37,7 +37,7 @@ def mock_requests_get(monkeypatch):
    
 @pytest.fixture
 def lastfm_client(): 
-   return LASTFMClient(api_key="fake_key", base_url="fake_url", username="fake_user", fetch_limit=2)
+   return LASTFMClient(api_key="fake_key", base_url="fake_url", username="fake_user")
 
 @pytest.fixture
 def track_transformer():
