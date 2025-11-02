@@ -30,7 +30,7 @@ deployments:
   tags: []
   concurrency_limit: null
   description: null
-  entrypoint: prefect-deployment/prefect_flow.py:lastfm_etl
+  entrypoint: prefect_deployment/prefect_flow.py:lastfm_etl
   parameters: {}
   work_pool:
     name: lastfm-pool
