@@ -33,7 +33,7 @@ deployments:
   entrypoint: prefect-deployment/prefect_flow.py:lastfm_etl
   parameters: {}
   work_pool:
-    name: docker-pool-r
+    name: lastfm-pool
     type: docker
     work_queue_name: null
     job_variables: 
