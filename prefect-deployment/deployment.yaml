@@ -34,6 +34,7 @@ deployments:
   parameters: {}
   work_pool:
     name: docker-pool-r
+    type: docker
     work_queue_name: null
     job_variables: 
       image: lastfm-image:latest
