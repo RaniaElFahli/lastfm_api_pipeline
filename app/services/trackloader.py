@@ -1,5 +1,6 @@
 from app.models import Artists, Tracks, AlbumGenre, Albums, MusicGenre, ArtistGenre, RecentTracks
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.decorators import commit_or_rollback
 
 class TrackLoader:
@@ -9,6 +10,14 @@ class TrackLoader:
         self.extractor = extractor
         self.transformer = transformer 
         self.logger = logger
+    
+    def _get_last_timestamp(self)-> int:
+        last_timestamp = (
+            self.db.query(RecentTracks)
+            .order_by(RecentTracks.timestamp.desc())
+            .first()
+        )
+        return last_timestamp
 
     def _get_or_create_artist(self, artist_name:str) -> int:
         artist = self.db.query(Artists).filter_by(artist_name=artist_name).first()
