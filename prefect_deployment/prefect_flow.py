@@ -16,15 +16,16 @@ from prefect.states import State
 
 
 def make_loader(logger):
-    extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, logger=logger)
     transformer = TrackTransformer(genre_csv_path="data/genres.csv")
+    extractor = LASTFMClient(db=session,api_key=API_KEY, base_url=BASE_URL, username=USERNAME, logger=logger, transformer=transformer)
     loader = TrackLoader(db=session, extractor=extractor, transformer=transformer, logger=logger)
     return loader
 
 @task(log_prints=True, name="fetch_lastfm_data")
 def fetch_lastfm_data():
     logger = get_run_logger()
-    extractor = LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=4, logger=logger)
+    transformer = TrackTransformer(genre_csv_path="data/genres.csv")
+    extractor = LASTFMClient(db=session,api_key=API_KEY, base_url=BASE_URL, username=USERNAME, logger=logger, transformer=transformer)
     logger.info(f"Fetching recent tracks with limit : {extractor.fetch_limit}")
     logger.info(f"Fetching recent tracks for user : {extractor.username}")
     return extractor.fetch_recent_tracks()
