@@ -9,12 +9,36 @@ from app.services.tracktransformer import TrackTransformer
 from app.services.run_pipeline import LastfmPipeline
 from app.config import API_KEY, BASE_URL, USERNAME
 import pytest
+import logging 
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 load_dotenv()
 
 @pytest.fixture
-def real_lastfm_client():
-   return LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME, fetch_limit=3)
+def test_db_session():
+    test_database_url = (
+        f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
+        f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB_test')}"
+    )
+    engine = create_engine(test_database_url, echo=False)
+    Base.metadata.create_all(engine)
+    session = Session(engine)
+    yield session
+    session.close()
+    Base.metadata.drop_all(engine)
+
+@pytest.fixture
+def real_transformer():
+    return TrackTransformer(genre_csv_path="data/genres.csv")
+
+@pytest.fixture
+def real_lastfm_client(real_transformer, test_db_session):
+   return LASTFMClient(api_key=API_KEY, base_url=BASE_URL, username=USERNAME,
+                    transformer=real_transformer, db=test_db_session, logger=logger)
 
 def test_lastfmapi_recent_tracks(real_lastfm_client):
    results = real_lastfm_client.fetch_recent_tracks()
@@ -35,34 +59,21 @@ def test_check_call_lastfm_status_code(real_lastfm_client):
     assert code == 200
 
 @pytest.mark.dependency(depends=["test_status_code"])
-def test_full_pipeline_integration(real_lastfm_client):
-    test_database_url = (
-        f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
-        f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB_test')}"
-    )
-    engine = create_engine(test_database_url, echo=False)
-
-    Base.metadata.create_all(engine)
-
-    session = Session(engine)
+def test_full_pipeline_integration(real_lastfm_client, real_transformer, test_db_session):
 
     from app.models import Artists, Albums, Tracks, RecentTracks, ArtistGenre, MusicGenre, AlbumGenre
 
     extractor = real_lastfm_client
-    transformer = TrackTransformer(genre_csv_path="data/genres.csv")
-    loader = TrackLoader(db=session, extractor=extractor, transformer=transformer)
+    transformer = real_transformer
+    loader = TrackLoader(db=test_db_session, extractor=extractor, transformer=transformer)
     pipeline_run = LastfmPipeline(extractor=extractor, transformer=transformer, loader=loader)
     pipeline_run.run()
 
-    assert session.query(Artists).count() > 0
-    assert session.query(Albums).count() > 0
-    assert session.query(Tracks).count() > 0
-    assert session.query(RecentTracks).count() > 0
-    assert session.query(MusicGenre).count() > 0
-    assert session.query(ArtistGenre).count() > 0
-    assert session.query(AlbumGenre).count() > 0
-
-    session.close()
-
-    Base.metadata.drop_all(engine)
+    assert test_db_session.query(Artists).count() > 0
+    assert test_db_session.query(Albums).count() > 0
+    assert test_db_session.query(Tracks).count() > 0
+    assert test_db_session.query(RecentTracks).count() > 0
+    assert test_db_session.query(MusicGenre).count() > 0
+    assert test_db_session.query(ArtistGenre).count() > 0
+    assert test_db_session.query(AlbumGenre).count() > 0
     
