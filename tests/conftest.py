@@ -1,5 +1,5 @@
 import pytest 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock,Mock
 from app.services.lastfmclient import LASTFMClient
 from app.services.tracktransformer import TrackTransformer
 from app.services.trackloader import TrackLoader
@@ -34,14 +34,16 @@ def mock_requests_get(monkeypatch):
             raise ValueError(f"Unhandled API method: {method}")
 
     monkeypatch.setattr(requests, "get", mock_get)
-   
-@pytest.fixture
-def lastfm_client(): 
-   return LASTFMClient(api_key="fake_key", base_url="fake_url", username="fake_user")
 
 @pytest.fixture
 def track_transformer():
-   return TrackTransformer(genre_csv_path="data/genres.csv")
+   return TrackTransformer(genre_csv_path="data/genres.csv")  
+
+@pytest.fixture
+def lastfm_client(db_session_populated, track_transformer): 
+   fake_logger = Mock()
+   return LASTFMClient(api_key="fake_key", base_url="fake_url", username="fake_user", 
+                       transformer=track_transformer, db=db_session_populated, logger=fake_logger)
 
 @pytest.fixture
 def db_session(postgresql):
