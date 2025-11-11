@@ -26,7 +26,6 @@ def fetch_lastfm_data():
     logger = get_run_logger()
     transformer = TrackTransformer(genre_csv_path="data/genres.csv")
     extractor = LASTFMClient(db=session,api_key=API_KEY, base_url=BASE_URL, username=USERNAME, logger=logger, transformer=transformer)
-    logger.info(f"Fetching recent tracks with limit : {extractor.fetch_limit}")
     logger.info(f"Fetching recent tracks for user : {extractor.username}")
     return extractor.fetch_recent_tracks()
 
