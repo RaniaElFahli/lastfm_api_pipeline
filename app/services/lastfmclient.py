@@ -52,8 +52,9 @@ class LASTFMClient:
         per_page = 200
         last_timestamp = self.loader._get_last_timestamp()
         stop = False
+        max_page = 50
 
-        while not stop:
+        while not stop and page <= max_page:
             params = {
                 "method": "user.getRecentTracks",
                 "user": self.username,
